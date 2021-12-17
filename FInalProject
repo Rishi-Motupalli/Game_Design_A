@@ -1,0 +1,598 @@
+# Rishi Motupalli
+# 10/25/2021
+# Menu and Settings
+
+
+import pygame as py, os, random, time, sys
+
+from pygame import display
+
+
+py.init()
+WHITE=(255,255,255)
+BLACK=(0,0,0)
+PURPLE=(0,0,150)
+BLUE = (150,0,150)
+ORANGE = (255, 165, 0)
+GREEN = (0,255,0)
+RED = (255, 0, 0)
+BOOLINSTRUCTIONS = False
+BOOLLEVEL1 = False
+BOOLLEVEL2 = False
+MAINMENU = True
+SCREEN = "MAINMENU"
+
+WIDTH = 800
+HEIGHT = 900
+isJump = False
+jumpcount = 10
+left = False
+right = False
+walkcount = 0
+clock = py.time.Clock()
+colors = {'black':(0,0,0), 'red':(255,0,0), 'green':(0,255,0), 'blue':(0,0,145), 'purple':(150,0,150), 'orange':(255, 165, 0)}
+backmessages=["Back"]
+messages=['Instructions','Level 1','Level 2','Settings','Score Board', 'Exit']
+messages2=['Screen size', 'Background Color', ]
+messages3 = ['Play Again', 'Exit']
+sizemessages=['Larger', 'Smaller', ]
+colormessages=['Red', 'Green', 'Purple']
+instructionmessages=["Use the arrow keys to move around",
+
+                    "Each key corresponds with its direction",
+
+                    "Spacebar is to jump",
+
+                    "Avoid the spikes and reach the endgoal", 
+
+                    "by jumping on the platform."] 
+
+walkright = [py.image.load('GameImages\Game\\R1.png'), py.image.load('GameImages\Game\\R2.png'), py.image.load('GameImages\Game\\R3.png'), py.image.load('GameImages\Game\\R4.png'), py.image.load('GameImages\Game\\R5.png'), py.image.load('GameImages\Game\\R6.png'), py.image.load('GameImages\Game\\R7.png'), py.image.load('GameImages\Game\\R8.png'), py.image.load('GameImages\Game\\R9.png')]
+walkleft = [py.image.load('GameImages\Game\\L1.png'), py.image.load('GameImages\Game\\L2.png'), py.image.load('GameImages\Game\\L3.png'), py.image.load('GameImages\Game\\L4.png'), py.image.load('GameImages\Game\\L5.png'), py.image.load('GameImages\Game\\L6.png'), py.image.load('GameImages\Game\\L7.png'), py.image.load('GameImages\Game\\L8.png'), py.image.load('GameImages\Game\\L9.png')]
+char = py.image.load('GameImages\Game\\standing.png')
+bg1 = py.image.load('GameImages\RealBG.jpg')
+plat1 = py.image.load('GameImages\Platform1.png')
+cloud1 = py.image.load('GameImages\cloud1.png')
+heart1 = py.image.load('GameImages\heart1.png')
+endlev1 = py.image.load('GameImages\Endlev1.png')
+bg2 = py.image.load('GameImages\RealBG2.jpg')
+rect= char.get_rect()
+print(rect)
+speed = 7
+jumping=False
+score = 100
+life1 = True
+life2 = True
+COLORMENU = False
+SIZEMENU = False
+SETTINGSMENU = True
+CurrentDisplay = BLACK
+                    
+# endsquare
+win=py.display.set_mode((WIDTH,HEIGHT))
+py.display.set_caption("Setting Window")
+#TITLE_FONT= py.font.SysFont(name,size,bold=false, italic= false)
+TITLE_FONT= py.font.SysFont('comicsans', 50, italic=True)
+SUBTITLE_FONT= py.font.SysFont('comicsans', 30, italic=True)
+xbox=25
+wbox=25
+square=py.Rect(10,10, wbox, xbox)
+counter = 0
+walkcount = 0
+livecount=1
+vel = 5
+myFile= open('score.txt', 'w')
+myFile.close()
+
+# Lev 2 loading images
+def Lev1():
+    win.blit(plat1,(100, 700))
+    win.blit(plat1,(300, 650))
+    win.blit(plat1,(400, 475))
+    win.blit(plat1,(600, 575))
+    win.blit(heart1,(635, 550))
+    win.blit(plat1, (725, 450))
+    win.blit(cloud1,(0, 745))
+    win.blit(cloud1,(250, 645))
+    win.blit(cloud1,(500, 745))
+    win.blit(cloud1,(750, 675))
+    win.blit(plat1,(130, 175))
+    win.blit(plat1,(585, 375))
+    win.blit(plat1, (375, 275))
+    win.blit(plat1, (75, 175))
+    win.blit(endlev1,(50, 40))
+    win.blit(char,(100,650))
+
+    py.display.update()
+
+
+def redrawGameWindow1():
+    global walkcount
+    win.blit(bg1, (0,0))#Background
+    Lev1()    
+    if  walkcount + 1 >= 27:
+        walkcount = 0 
+    if left:  
+        print(rect.x, rect.y)
+        win.blit(walkleft[walkcount//3], (rect.x,rect.y))
+        walkcount += 1                          
+    elif right:
+        win.blit(walkright[walkcount//3], (rect.x,rect.y))
+        walkcount += 1
+    py.display.flip()
+#loading images for Lev 2    
+def Lev2():
+    win.blit(plat1,(100, 700))
+    win.blit(plat1,(300, 650))
+    win.blit(plat1,(400, 475))
+    win.blit(plat1,(600, 575))
+    win.blit(char,(100,650))
+
+    
+
+    
+    py.display.update() 
+#Back button function
+def display_back():
+    x=660
+    y=830
+    square.x=x
+    square.y=y
+    for i in range(0,len(backmessages)):
+        word= backmessages[i]
+        py.draw.rect(win, PURPLE, square)
+        text=SUBTITLE_FONT.render(word, 10, WHITE)
+        win.blit(text, (x+wbox+10, y))
+        py.display.flip()
+        square.y=y
+
+def redrawGameWindow2():#Used from jump program
+    global walkcount
+    print("walk")
+    win.blit(bg2, (0,0))#Background
+    Lev2()
+    if walkcount + 1 >= 18:
+        walkcount = 0 
+    if left:  
+        print(rect.x, rect.y)
+        win.blit(walkleft[walkcount//3], (rect.x,rect.y))
+        walkcount += 1                          
+    elif right:
+        print(rect.x, rect.y)
+        win.blit(walkright[walkcount//3], (rect.x,rect.y))
+        walkcount += 1
+
+    py.display.flip
+
+# Main message fucntion for lists
+def display_message(message):
+    py.time.delay(100)
+    text=TITLE_FONT.render(message,30, WHITE)
+    win.blit(text, (WIDTH/2-text.get_width()/2, 30) )
+    py.display.update()
+    py.time.delay(10)
+
+
+def displaySub(subtitle, y): #subtitle function
+    py.time.delay(100)
+    text=SUBTITLE_FONT.render(subtitle, 1, WHITE)
+    win.blit(text, (10, y))
+    py.display.update()
+    py.time.delay(10)
+
+def Winner():#Finish screen once you reach the end
+    win.fill(CurrentDisplay)
+    score = 100 - livecount * 10 #Scoring system
+    myFile= open('score.txt', 'w')
+    myFile.write(str(score))
+    myFile.close()
+    lastScore = SUBTITLE_FONT.render('Best Score: ' + str(updateFile()),1,(255,255,255))
+    win.blit(lastScore, (WIDTH/2 - lastScore.get_width()/2,150))
+    My_Score= SUBTITLE_FONT.render(str(score), True, (250,250,250))
+    win.blit(My_Score, (WIDTH/2.25,75 ))
+
+
+def updateFile():#This is used for the high score 
+    f = open('score.txt','r')  #credit: https://www.techwithtim.net/tutorials/game-development-with-python/side-scroller-pygame/scoring-end-screen/
+    file = f.readlines()
+    final = int(file[0]) 
+
+    if final > int(score): 
+        f.close()
+        file = open('score.txt', 'w') 
+        file.write(str(score))
+        file.close() 
+
+        return score
+               
+    return final
+
+def backGroundM():
+    win.fill(CurrentDisplay)
+    x=70
+    y=190
+    square.x=x
+    square.y=y
+    for i in range(0, len(colormessages)):
+        word= colormessages[i]
+        py.draw.rect(win, PURPLE, square)
+        text=SUBTITLE_FONT.render(word,10, WHITE)
+        win.blit(text, (x+wbox+10, y))
+        py.display.flip()
+        py.time.delay(100)
+        y += 100
+        square.y=y
+    py.display.update
+
+
+
+# def Lev1border():#Level 1 Collision
+    #if rect.x>=127 and rect.x<=190 and rect.y>=279 or rect.x>=343 and rect.x<=426 and rect.y>=279 or rect.x>=573 and rect.x<=625 and rect.y>=279 or rect.y>=300:#Fall
+    #   rect.y -= (jumpcount* abs(jumpcount)*0.25)-50
+    #    rect.x+=0
+    #    rect.x-=0
+    #    livecount-1
+    #if rect.x<=127 and rect.x>=190 and rect.y>=310:
+    #    rect.x=0
+    #    rect.y=280
+    #if rect.y>=529:
+    #    rect.x=0
+    #    rect.y=280
+    #if rect.x<=127 and rect.x>=190 and rect.y<=278 or rect.x<=343 and rect.x>=426 and rect.y<=278 or rect.x<=573 and rect.x>=625 and rect.y<=278:
+    #    rect.x=0
+    #    rect.y=280
+
+# Menu function
+def display_Menu():
+    x=70
+    y=190
+    square.x=x
+    square.y=y
+    counter=1
+    for i in range(0, len(messages)):
+        word= messages[i]
+        py.draw.rect(win, PURPLE, square)
+        text=SUBTITLE_FONT.render(word,10, WHITE)
+        win.blit(text, (x+wbox+10, y))
+        py.display.flip()
+        py.time.delay(100)
+        y += 100
+        square.y=y
+        py.display.set_caption("Menu Window")
+
+# starting up main loop
+win.fill(CurrentDisplay)
+display_message('Menu')
+ysub=200
+py.time.delay(200)
+display_Menu()
+
+run=True
+counter=1
+
+#main loop
+while run:
+    for case in py.event.get():
+        if case.type == py.QUIT:
+            run=False
+    if case.type == py.MOUSEBUTTONDOWN:
+        mouse_pressed=py.mouse.get_pressed()
+        if mouse_pressed[0]:
+            mouse_pos=py.mouse.get_pos()
+            print(mouse_pos)
+            #print("why I am here")
+            if mouse_pos[0]>=70 and mouse_pos[0]<=95 and mouse_pos[1]>490 and mouse_pos[1]<515:
+                BOOLINSTRUCTIONS = False
+                BOOLLEVEL1 = False
+                BOOLLEVEL2 = False
+                MAINMENU = False
+                COLORMENU = False
+                SCREEN="SETTINGS"
+                win.fill(CurrentDisplay)
+                counter+=1
+                display_message("Settings")
+                py.display.set_caption("Setting Window")
+                mouse_pos=py.mouse.get_pos()
+                #print(COLORMENU)
+                x=70
+                y=190
+                square.x=x
+                square.y=y
+                for i in range(0, len(messages2)):
+                    word= messages2[i]
+                    py.draw.rect(win, PURPLE, square)
+                    text=SUBTITLE_FONT.render(word,10, WHITE)
+                    win.blit(text, (x+wbox+10, y))
+                    py.display.flip()
+                    py.time.delay(100)
+                    y += 100
+                    square.y=y
+                x=660
+                y=730
+                square.x=x
+                square.y=y
+                counter+=1
+                display_back()
+                
+                    
+            if MAINMENU:
+                BOOLINSTRUCTIONS
+                BOOLLEVEL1
+                BOOLLEVEL2      
+                    
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>185 and mouse_pos[1]<=215 and MAINMENU == True:
+                BOOLINSTRUCTIONS = True
+                BOOLLEVEL2 = False
+                BOOLLEVEL1 = False
+                MAINMENU = True
+                SCREEN="INSTRUCTIONS"
+                win.fill(CurrentDisplay)
+                display_message('Instructions')
+                py.display.set_caption("Instructions window")
+                x=70
+                y=190
+                square.x=x
+                square.y=y
+                for i in range(0, len(instructionmessages)):
+                    word= instructionmessages[i]
+                    text=SUBTITLE_FONT.render(word,10, WHITE)
+                    win.blit(text, (x+wbox+10, y))
+                    y += 40
+                    py.display.flip()
+                    py.time.delay(100)
+                display_back()
+                
+
+            # Screen size changer
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>185 and mouse_pos[1]<=215 and MAINMENU == False and SCREEN=="SETTINGS":
+                if BOOLINSTRUCTIONS == False:
+                    BOOLINSTRUCTIONS = False
+                    BOOLLEVEL1 = False
+                    BOOLLEVEL2 = False
+                    MAINMENU = False
+                    SIZEMENU = True
+                    SETTINGSMENU = False
+                    SCREEN="SIZE"
+                    win.fill(CurrentDisplay)
+                    display_message('Screen Size')
+                    py.display.set_caption("Screen Size Window")
+                    x=70
+                    y=190
+                    square.x=x
+                    square.y=y
+                    for i in range(0, len(sizemessages)):
+                        word= sizemessages[i]
+                        py.draw.rect(win, PURPLE, square)
+                        text=SUBTITLE_FONT.render(word,10, WHITE)
+                        win.blit(text, (x+wbox+10, y))
+                        py.display.flip()
+                        py.time.delay(100)
+                        y += 100
+                        square.y=y
+                        py.display.flip()
+                    display_back()
+                
+                
+               
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>290 and mouse_pos[1]<315 and MAINMENU == False and SIZEMENU == False:
+                BOOLLEVEL1 = False
+                BOOLINSTRUCTIONS = False
+                BOOLLEVEL1 = False
+                BOOLLEVEL2 = False
+                MAINMENU = False
+                SIZEMENU =False
+                SETTINGSMENU = False
+                SCREEN="BGCOLOR"
+                display_message('Background Colors')
+                py.display.set_caption("Background Colors")
+                backGroundM()
+                COLORMENU = True
+                display_back()
+                print(mouse_pos)
+
+            # weird delay. You have to click color and then green red - green / purple - green
+            #if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>190 and mouse_pos[1]<=220 and MAINMENU == False and SIZEMENU == False and SETTINGSMENU == False and COLORMENU and SCREEN == "BGCOLOR":
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>190 and mouse_pos[1]<=220 and SCREEN == "BGCOLOR":
+                BOOLLEVEL1 = False
+                BOOLINSTRUCTIONS = False
+                BOOLLEVEL1 = False
+                BOOLLEVEL2 = False
+                MAINMENU = False
+                SIZEMENU = False
+                CurrentDisplay = RED
+                print('I am in Red')
+                win.fill(CurrentDisplay)
+
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>290 and mouse_pos[1]<315 and  SCREEN == "BGCOLOR":
+                
+                BOOLLEVEL1 = False
+                BOOLINSTRUCTIONS = False
+                BOOLLEVEL1 = False
+                BOOLLEVEL2 = False
+                MAINMENU = False
+                SIZEMENU = False
+                CurrentDisplay = GREEN
+                print('I am in Green')
+                win.fill(CurrentDisplay)
+
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>390 and mouse_pos[1]<415 and MAINMENU == False and SIZEMENU == False and SETTINGSMENU == False and COLORMENU and SCREEN =="BGCOLOR":
+                BOOLLEVEL1 = False
+                BOOLINSTRUCTIONS = False
+                BOOLLEVEL1 = False
+                BOOLLEVEL2 = False
+                MAINMENU = False
+                SIZEMENU = False
+                CurrentDisplay = BLUE
+                print('I am in Purple')
+                win.fill(CurrentDisplay)
+
+
+
+ 
+               
+
+
+
+                
+
+            
+                 #Level 1 in menu
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>290 and mouse_pos[1]<=315 and MAINMENU:
+                BOOLLEVEL1 = True
+                BOOLINSTRUCTIONS = False
+                BOOLLEVEL2 = False
+                MAINMENU = True
+                win.fill(CurrentDisplay)
+                display_message('Level 1')
+                py.display.set_caption("Level 1")
+                Lev2()
+                redrawGameWindow2()
+               # Lev1border()
+                display_back()
+                while BOOLLEVEL1 == True:
+                    rect = char.get_rect()
+                    print(rect.x, rect.y)
+                    keypressed=py.key.get_pressed()
+                
+                    if keypressed[py.K_LEFT]:#Controls
+                       
+                        rect.x-=vel 
+                        print(rect.x, rect.y)
+                        left = True
+                        right = False
+                    elif keypressed[py.K_RIGHT]:
+                        rect.x += vel
+                        print(rect.x, rect.y)
+                        left = False
+                        right = True
+
+                    else: 
+                        left = False
+                        right = False
+                        walkcount = 0
+                    
+                    
+                    if not(jumping):
+                        if keypressed[py.K_DOWN]: 
+                            print(rect.x, rect.y)
+                            rect.y += speed
+                        if keypressed[py.K_UP]:
+                            rect.y -= speed
+                        if keypressed[py.K_SPACE]:
+                             jumping = True
+
+                    if not(jumping):
+                        if keypressed[py.K_SPACE]:
+                            jumping = True
+                            left = False
+                            right = False
+                    else:#Jump count and jumping height
+                        if jumpcount >= -10:
+                            rect.y -= (jumpcount* abs(jumpcount)*0.25)-.5
+                            jumpcount -= 1
+                        else:
+                            jumpcount =10
+                            jumping = False
+                    redrawGameWindow2()
+                    # This is a comment
+                    py.display.update()
+
+
+                
+                
+            #Level 2 in Menu
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>390 and mouse_pos[1]<415 and MAINMENU:
+                BOOLLEVEL1 = False
+                BOOLINSTRUCTIONS = False
+                BOOLLEVEL1 = False
+                BOOLLEVEL2 = True
+                MAINMENU = True
+                win.fill(CurrentDisplay)
+                display_message('Level 2')
+                py.display.set_caption("Level 2")
+                x=70
+                y=190
+                square.x= 70
+                square.y= 190
+               # Lev1border()
+                display_back()
+            
+                while BOOLLEVEL2:
+                    for case in py.event.get():
+                        if case.type == py.QUIT:
+                            BOOLLEVEL2=False
+
+                    rect = char.get_rect()
+                    keypressed=py.key.get_pressed()
+                    if keypressed[py.K_LEFT]:#Controls
+                        print("L")
+                        print(rect.x, rect.y)
+                        rect.x-=vel 
+                        left = True
+                        right = False
+                    elif keypressed[py.K_RIGHT]:
+                        print("R")
+                        print(rect.x, rect.y)
+                        rect.x += vel
+                        left = False
+                        right = True
+
+                    else: 
+                        left = False
+                        right = False
+                        walkcount = 0
+                    
+                    
+                    if not(jumping):
+                        if keypressed[py.K_DOWN]: 
+                            rect.y += speed
+                        if keypressed[py.K_UP]:
+                            rect.y -= speed
+                        if keypressed[py.K_SPACE]:
+                             jumping = True
+
+                    if not(jumping):
+                        if keypressed[py.K_SPACE]:
+                            jumping = True
+                            left = False
+                            right = False
+                    else:#Jump count and jumping height
+                        if jumpcount >= -10:
+                            rect.y -= (jumpcount* abs(jumpcount)*0.25)-.5
+                            jumpcount -= 1
+                        else:
+                            jumpcount =10
+                            jumping = False
+                    redrawGameWindow1()
+                    # This is a comment
+                    py.display.update()
+
+
+            #Universal Back button
+            if mouse_pos[0]>660 and mouse_pos[0]<=685 and mouse_pos[1]>830 and mouse_pos[1]<=855:
+                win.fill(CurrentDisplay)
+                display_message('Menu')
+                display_Menu()
+
+
+                
+            # Screen size change   
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>190 and mouse_pos[1]<=215 and MAINMENU == False and SIZEMENU:
+                WIDTH+=50
+                HEIGHT+=50
+                win=py.display.set_mode((WIDTH,HEIGHT))   
+                
+
+                
+
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>290 and mouse_pos[1]<315 and MAINMENU == False and SIZEMENU:
+                WIDTH-=50
+                HEIGHT-=50
+                win=py.display.set_mode((WIDTH,HEIGHT))
+                
+                
+                
+
+            #Exit
+            if mouse_pos[0]>70 and mouse_pos[0]<=95 and mouse_pos[1]>690 and mouse_pos[1]<=715:
+                run = False
